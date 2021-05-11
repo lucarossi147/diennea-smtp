@@ -1,0 +1,169 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <link rel="icon"
+        type="image/png"
+        href="https://png2.cleanpng.com/sh/ea47bc2bd947b39a5ed8a7752f9c604e/L0KzQYm3WMI6N5JtjZH0aYP2gLBuTfNwdaF6jNd7LXnmf7B6TfVuaZpxRdhqdnnmf7A0lvVkfJD3Rdl7YYDrebT6TflvbKZ4Rdd2YXnvPbrqjB5mNZpoh9D8LXTyh7BzjBFlNZd3fdc2cH7qPbL1hL13bZR5hAQ2aXOwRbOBV8A0bpY2e9gDNUCxQ4a6WcIxOGc2TaUANUe4QISBUcE5P191htk=/kisspng-computer-icons-email-favicon-vector-graphics-indus-email-icone-icons-download-free-png-and-vector-ic-5b8703fe1cf850.3539200615355750381187.png">
+
+  <!-- Required meta tags -->
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <!-- Bootstrap CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-wEmeIV1mKuiNpC+IOBjI7aAzPcEZeedi5yW5f2yOq55WWLwNGmvvx4Um1vskeMj0" crossorigin="anonymous">
+  <title>Diennea smtp cool app</title>
+</head>
+<body>
+<div id="app" class="container-fluid">
+  <h1 class="p-3" >Welcome to your smtp sender!</h1>
+
+  <div class="p-3" v-if="loggedIn === false">
+    <div class="mb-3">
+      <label for="email" class="form-label">Email</label>
+      <input v-model="credentials.email" type="email" class="form-control" id="email" placeholder="Enter your email">
+    </div>
+    <div class="mb-3">
+      <label for="password" class="form-label">Password</label>
+      <input v-model="credentials.password" type="password" class="form-control" id="password" placeholder="Enter your password">
+    </div>
+    <button @click="login" type="submit"  class="btn btn-primary">log-in</button>
+  </div>
+  <div class="p-3" v-else>
+    <div class="mb-3">
+      <label for="fromMail" class="form-label">From</label>
+      <input v-model="newMail.fromEmail" type="email" class="form-control" id="fromMail" placeholder="from@mail.com">
+    </div>
+    <div class="mb-3">
+      <label for="toMail" class="form-label">To</label>
+      <input v-model="newMail.toEmail" type="email" class="form-control" id="toMail" placeholder="to@mail.com">
+    </div>
+    <div class="mb-3">
+      <label for="subject" class="form-label">Subject</label>
+      <input v-model="newMail.subject" type="text" class="form-control" id="subject" placeholder="Subject">
+    </div>
+    <div class="mb-3">
+      <label for="body" class="form-label">Body</label>
+      <input v-model="newMail.body" type="text" class="form-control" id="body" placeholder="Body">
+    </div>
+    <button @click="sendMail" type="submit" class="btn btn-primary">Send mail!</button>
+  </div>
+
+</div>
+
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0/dist/js/bootstrap.bundle.min.js" integrity="sha384-p34f1UUtsS3wqzfto5wAAmdvj+osOnFyQFpp4Ua3gs/ZVWx6oOypYoCJhGGScy+8" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/vue"></script>
+<script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+
+<script>
+  new Vue({
+    el: "#app",
+    data: function (){
+      return {
+        myToken:"",
+        credentials: {
+          email:"",
+          password:""
+        },
+        newMail: {
+          fromEmail:"",
+          toEmail:"",
+          subject:"",
+          body:""
+        },
+        loggedIn: false,
+      }
+    },
+    methods: {
+      // definire funzione listMovies
+      login: function (){
+        const params = new URLSearchParams();
+        params.append('email', this.credentials.email)
+        params.append('password', this.credentials.password)
+        const config = {
+          headers: {
+            'Content-Type': 'application/x-www-form-urlencoded'
+          }
+        }
+        let req = axios.post("http://localhost:8080/diennea-smtp-1.0-SNAPSHOT/api/login", params, config)
+                .then(function(response) {
+                  console.log(response.status)
+                  if (response.status === 200){
+                    console.log("logging...")
+                    return response;
+                  }
+                  return response;
+               }).catch(err => {
+                  if (err.response) {
+                    // client received an error response (5xx, 4xx)
+                    if (err.response.status === 401){
+                      alert("wrong email or password");
+                    }
+                    console.log("error response")
+                  } else if (err.request) {
+                    // client never received a response, or request never left
+                    console.log("client never received a response, or request never left")
+                  } else {
+                    console.log("error")
+                  }
+                  return err;
+              });
+        req.then(res => {
+          if (res.data != null){
+            if (res.data.token !== "") {
+              this.loggedIn = true
+              this.myToken = res.data.token;
+              console.log("token");
+              console.log(this.myToken)
+            }
+          }
+        })
+      },
+
+      sendMail: function (){
+        console.log("sending mail...")
+        const params = new URLSearchParams();
+        params.append('from', this.newMail.fromEmail)
+        params.append('to', this.newMail.toEmail)
+        params.append('subject', this.newMail.subject)
+        params.append('body', this.newMail.body)
+        params.append('token', this.myToken)
+
+        let req = axios.post("http://localhost:8080/smtp-1.0-SNAPSHOT/api/mail/send-mail", params, config)
+                .then(function(response) {
+                  console.log(response.data)
+                  console.log(response.status)
+                  if (response.status === 200){
+                    console.log("logging...")
+                    return true;
+                  }
+                  if (response.status === 401){
+                    alert("wrong email or password");
+                  }
+                  return false
+                }).catch(err => {
+                  if (err.response) {
+                    // client received an error response (5xx, 4xx)
+                    console.log("error response")
+                  } else if (err.request) {
+                    // client never received a response, or request never left
+                    console.log("client never received a response, or request never left")
+                  } else {
+                    console.log("error")
+                  }
+                  return false;
+                });
+        req.then(res =>{
+          if (res) {
+            this.loggedIn = true
+          }
+        })
+      }
+    },
+    created: function () {
+      // `this` points to the vm instance
+      console.log(this.loggedIn)
+    }
+  })
+</script>
+</body>
+</html>
