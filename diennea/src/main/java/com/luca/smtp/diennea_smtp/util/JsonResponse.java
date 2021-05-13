@@ -1,4 +1,4 @@
-package com.luca.smtp.diennea_smtp;
+package com.luca.smtp.diennea_smtp.util;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;

@@ -5,6 +5,7 @@ import com.luca.smtp.diennea_smtp.util.User;
 
 import java.util.HashMap;
 import java.util.Optional;
+import java.util.Random;
 
 public class FakeDBSingleton {
     HashMap<String, User> fakeDB = new HashMap<>();
@@ -30,7 +31,6 @@ public class FakeDBSingleton {
         User user = new User();
         user.setEmail("lucarossi147@gmail.com");
         user.setPassword("a");
-        user.setToken("poop");
         this.fakeDB.put(user.getEmail(), user);
     }
 
@@ -60,10 +60,17 @@ public class FakeDBSingleton {
     }
 
     private String createToken(){
-//        byte[] array = new byte[10]; // length is bounded by 10
-//        new Random().nextBytes(array);
-//        return new String(array, StandardCharsets.UTF_8);
-        return "poop";
+        int leftLimit = 97; // letter 'a'
+        int rightLimit = 122; // letter 'z'
+        int targetStringLength = 10;
+        Random random = new Random();
+
+        String generatedString = random.ints(leftLimit, rightLimit + 1)
+                .limit(targetStringLength)
+                .collect(StringBuilder::new, StringBuilder::appendCodePoint, StringBuilder::append)
+                .toString();
+
+        return generatedString;
     }
 
     public boolean isLoggedIn(String email, String token){

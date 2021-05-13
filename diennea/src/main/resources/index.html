@@ -13,8 +13,30 @@
   <title>Diennea smtp cool app</title>
 </head>
 <body>
+
 <div id="app" class="container-fluid">
   <h1 class="p-3" >Welcome to your smtp sender!</h1>
+
+
+  <div class="toast-container position-absolute p-3 top-0 end-0">
+    <div class="toast align-items-center text-white bg-primary border-0" id="successToast" role="status" aria-live="polite" data-bs-delay="5000" aria-atomic="true">
+      <div class="d-flex">
+        <div class="toast-body">
+          {{toast}}
+        </div>
+        <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+      </div>
+    </div>
+
+    <div class="toast align-items-center text-white bg-danger" id="errorToast" role="alert" aria-live="assertive" aria-atomic="true">
+      <div class="d-flex">
+        <div class="toast-body" id="errorText">
+          An error occurred
+        </div>
+        <button type="button" class="btn-close me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+      </div>
+    </div>
+  </div>
 
   <div class="p-3" v-if="loggedIn === false">
     <div class="mb-3">
@@ -27,6 +49,8 @@
     </div>
     <button @click="login" type="submit"  class="btn btn-primary">log-in</button>
   </div>
+
+
   <div class="p-3" v-else>
     <div class="mb-3">
       <label for="fromMail" class="form-label">From</label>
@@ -46,29 +70,30 @@
     </div>
     <button @click="sendMail" type="submit" class="btn btn-primary">Send mail!</button>
   </div>
-
 </div>
 
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0/dist/js/bootstrap.bundle.min.js" integrity="sha384-p34f1UUtsS3wqzfto5wAAmdvj+osOnFyQFpp4Ua3gs/ZVWx6oOypYoCJhGGScy+8" crossorigin="anonymous"></script>
 <script src="https://cdn.jsdelivr.net/npm/vue"></script>
 <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
 
 <script>
   new Vue({
     el: "#app",
     data: function (){
       return {
+        toast:"",
         myToken:"",
         credentials: {
-          email:"",
-          password:""
+          email:"lucarossi147@gmail.com",
+          password:"a"
         },
         newMail: {
-          fromEmail:"",
-          toEmail:"",
-          subject:"",
-          body:""
+          fromEmail:"lucarossi147@gmail.com",
+          toEmail:"lr959755@gmail.com",
+          subject:"ciao",
+          body:"ciao"
         },
         loggedIn: false,
       }
@@ -88,21 +113,27 @@
                 .then(function(response) {
                   console.log(response.status)
                   if (response.status === 200){
+                    this.toast = "Successfully logged in!"
+                    $("#successToast").toast('show');
                     console.log("logging...")
                     return response;
                   }
                   return response;
                }).catch(err => {
                   if (err.response) {
+
                     // client received an error response (5xx, 4xx)
                     if (err.response.status === 401){
-                      alert("wrong email or password");
+                      $("#errorText").text("Wrong email or password");
+                      $("#errorToast").toast('show');
                     }
                     console.log("error response")
                   } else if (err.request) {
                     // client never received a response, or request never left
                     console.log("client never received a response, or request never left")
                   } else {
+                    $("#errorText").text("An error occurred");
+                    $("#errorToast").toast('show');
                     console.log("error")
                   }
                   return err;
@@ -112,6 +143,8 @@
             if (res.data.token !== "") {
               this.loggedIn = true
               this.myToken = res.data.token;
+              this.toast = "Successfully logged in!"
+              $("#successToast").toast('show');
               console.log("token");
               console.log(this.myToken)
             }
@@ -121,6 +154,11 @@
 
       sendMail: function (){
         console.log("sending mail...")
+        const config = {
+          headers: {
+            'Content-Type': 'application/x-www-form-urlencoded'
+          }
+        }
         const params = new URLSearchParams();
         params.append('from', this.newMail.fromEmail)
         params.append('to', this.newMail.toEmail)
@@ -128,21 +166,26 @@
         params.append('body', this.newMail.body)
         params.append('token', this.myToken)
 
-        let req = axios.post("http://localhost:8080/smtp-1.0-SNAPSHOT/api/mail/send-mail", params, config)
+        let req = axios.post("http://localhost:8080/diennea-smtp-1.0-SNAPSHOT/api/mail/send-mail", params, config)
                 .then(function(response) {
                   console.log(response.data)
                   console.log(response.status)
                   if (response.status === 200){
-                    console.log("logging...")
-                    return true;
+                    this.toast = "Mail successfully sent!"
+                    $("#successToast").toast('show');
+                    console.log("sent")
                   }
-                  if (response.status === 401){
-                    alert("wrong email or password");
-                  }
-                  return false
+                  return response
                 }).catch(err => {
                   if (err.response) {
                     // client received an error response (5xx, 4xx)
+                   if (err.status === 401){
+                      $("#errorText").text("Unauthorized");
+                      $("#errorToast").toast('show');
+                    } else {
+                     $("#errorText").text("An error occurred");
+                     $("#errorToast").toast('show');
+                   }
                     console.log("error response")
                   } else if (err.request) {
                     // client never received a response, or request never left
@@ -150,13 +193,8 @@
                   } else {
                     console.log("error")
                   }
-                  return false;
+                  return err;
                 });
-        req.then(res =>{
-          if (res) {
-            this.loggedIn = true
-          }
-        })
       }
     },
     created: function () {

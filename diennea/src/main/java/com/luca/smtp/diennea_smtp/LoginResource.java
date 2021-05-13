@@ -1,5 +1,7 @@
 package com.luca.smtp.diennea_smtp;
 
+import com.luca.smtp.diennea_smtp.util.JsonResponse;
+
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
