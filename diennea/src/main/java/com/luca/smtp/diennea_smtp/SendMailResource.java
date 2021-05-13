@@ -27,7 +27,7 @@ public class SendMailResource {
             User user =fakeDBSingleton.fakeDB.get(from);
          return Response.status(401, user.getEmail() + " "+ user.getToken() ).build();
         }
-        /*final String fromEmail = "diennea.smtp@gmail.com"; //requires valid gmail id
+        final String fromEmail = "diennea.smtp@gmail.com"; //requires valid gmail id
         final String password = "smtp.diennea"; // correct password for gmail id
         final String toEmail = "lucarossi147@gmail.com"; // can be any email id
 
@@ -47,29 +47,7 @@ public class SendMailResource {
         };
         Session session = Session.getInstance(props, auth);
 
-        EmailUtil.sendEmail(session, from, to,subject, body);*/
-
-        final String fromEmail = "diennea.smtp@gmail.com"; //requires valid gmail id
-        final String password = "smtp.diennea"; // correct password for gmail id
-
-        System.out.println("TLSEmail Start");
-        Properties props = new Properties();
-        props.put("mail.smtp.host", "smtp.gmail.com"); //SMTP Host
-        props.put("mail.smtp.port", "587"); //TLS Port
-        props.put("mail.smtp.auth", "true"); //enable authentication
-        props.put("mail.smtp.starttls.enable", "true"); //enable STARTTLS
-
-        //create Authenticator object to pass in Session.getInstance argument
-        Authenticator auth = new Authenticator() {
-            //override the getPasswordAuthentication method
-            protected PasswordAuthentication getPasswordAuthentication() {
-                return new PasswordAuthentication(fromEmail, password);
-            }
-        };
-        Session session = Session.getInstance(props, auth);
-
-        EmailUtil.sendEmail2(session, to, subject, body);
-
+        EmailUtil.sendEmail(session, from, to,subject, body);
         return Response.ok(from+ " "+ to + " "+ subject + " "+ body).build();
     }
 
