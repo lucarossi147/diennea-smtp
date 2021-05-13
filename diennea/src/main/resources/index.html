@@ -166,7 +166,7 @@
         params.append('body', this.newMail.body)
         params.append('token', this.myToken)
 
-        let req = axios.post("http://localhost:8080/diennea-smtp-1.0-SNAPSHOT/api/mail/send-mail", params, config)
+        axios.post("http://localhost:8080/diennea-smtp-1.0-SNAPSHOT/api/mail/send-mail", params, config)
                 .then(function(response) {
                   console.log(response.data)
                   console.log(response.status)
@@ -177,29 +177,25 @@
                   }
                   return response
                 }).catch(err => {
-                  if (err.response) {
-                    // client received an error response (5xx, 4xx)
-                   if (err.status === 401){
-                      $("#errorText").text("Unauthorized");
-                      $("#errorToast").toast('show');
-                    } else {
-                     $("#errorText").text("An error occurred");
-                     $("#errorToast").toast('show');
-                   }
-                    console.log("error response")
-                  } else if (err.request) {
-                    // client never received a response, or request never left
-                    console.log("client never received a response, or request never left")
-                  } else {
-                    console.log("error")
-                  }
-                  return err;
-                });
+          if (err.response) {
+            // client received an error response (5xx, 4xx)
+            if (err.status === 401){
+              $("#errorText").text("Unauthorized");
+              $("#errorToast").toast('show');
+            } else {
+              $("#errorText").text("An error occurred");
+              $("#errorToast").toast('show');
+            }
+            console.log("error response")
+          } else if (err.request) {
+            // client never received a response, or request never left
+            console.log("client never received a response, or request never left")
+          } else {
+            console.log("error")
+          }
+          return err;
+        });
       }
-    },
-    created: function () {
-      // `this` points to the vm instance
-      console.log(this.loggedIn)
     }
   })
 </script>
