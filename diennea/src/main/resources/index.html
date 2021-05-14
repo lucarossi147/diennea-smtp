@@ -41,7 +41,7 @@
   <div class="p-3" v-if="loggedIn === false">
     <div class="mb-3">
       <label for="email" class="form-label">Email</label>
-      <input v-model="credentials.email" type="email" class="form-control" id="email" placeholder="Enter your email">
+      <input v-model="credentials.email" type="email" class="form-control" aria-describedby="emailHelp" id="email" placeholder="Enter your email">
     </div>
     <div class="mb-3">
       <label for="password" class="form-label">Password</label>
@@ -66,7 +66,7 @@
     </div>
     <div class="mb-3">
       <label for="body" class="form-label">Body</label>
-      <input v-model="newMail.body" type="text" class="form-control" id="body" placeholder="Body">
+      <textarea v-model="newMail.body" type="text" class="form-control" id="body" placeholder="Body" rows="10"></textarea>
     </div>
     <button @click="sendMail" type="submit" class="btn btn-primary">Send mail!</button>
   </div>
@@ -93,7 +93,7 @@
           fromEmail:"lucarossi147@gmail.com",
           toEmail:"lr959755@gmail.com",
           subject:"ciao",
-          body:"ciao"
+          body:"ciao ciao"
         },
         loggedIn: false,
       }
